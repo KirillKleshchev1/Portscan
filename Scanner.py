@@ -17,6 +17,8 @@ class PortScanner:
                     sock.connect((self.dest, port))
                 except socket.timeout:
                     return port, None
+                except ConnectionRefusedError:
+                    continue
                 try:
                     if protocol == 'DNS':
                         packet = pack('!H', len(packet)) + packet
@@ -27,6 +29,8 @@ class PortScanner:
                     if CHECKER[protocol](packet):
                         return port, protocol
                 except socket.error:
+                    continue
+                except ConnectionRefusedError:
                     continue
         return port, 'Неизвестный протокол'
 
@@ -39,5 +43,7 @@ class PortScanner:
                     if CHECKER[protocol](sock.recv(128)):
                         return port, protocol
                 except socket.error:
+                    continue
+                except ConnectionRefusedError:
                     continue
         return port, None
